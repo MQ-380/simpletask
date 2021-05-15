@@ -1,25 +1,38 @@
-import logo from './logo.svg';
 import './App.css';
+import Home from './Home/Home'
+import Login from './Login/Login';
+//import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 function App() {
+  let [ login, setLogin ] = useState(false);
+
+  useEffect(()=>{
+    if(hasLogin()) {
+      setLogin(true);
+    }
+  }, []);
+
+  function hasLogin() {
+    return true;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    // <BrowserRouter>
+    //   <Switch>
+    //     <Route exact path="/">
+    //       <Login setLogin={setLogin}/>
+    //     </Route>
+    //     <Route path="/main">
+    //       <Home />
+    //     </Route>
+    //   </Switch>
+    // </BrowserRouter>
+    <div className='Home'>
+      {!login && <Login setLogin={setLogin}/>}
+      {login && <Home user={{userType: 'admin'}}></Home>}
     </div>
-  );
+  )
 }
 
 export default App;
