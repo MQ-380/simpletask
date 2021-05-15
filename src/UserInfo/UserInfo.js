@@ -7,6 +7,7 @@ export default function UserInfo () {
     let [ originData, setOriginData ] = useState([]);
     let [ showModalType, setShowModalType ] = useState(false);
     let [ clickedInfo, setClickedInfo ] = useState({});
+    let [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
         let data = [];
@@ -22,7 +23,11 @@ export default function UserInfo () {
                 userType: 'normal',
             });
         }
-        setOriginData(data);
+        setTimeout(() => {
+            setOriginData(data);
+            setLoading(false);
+        }, 1000)
+
     }, []);
 
     const columns =[
@@ -112,6 +117,7 @@ export default function UserInfo () {
                 }}>add</Button>
             </Space>
             <Table columns={columns} dataSource={originData} sticky={{offsetHeader: 64}} 
+                loading={loading}
                 onRow={record => {
                     return {
                         onClick: e => {
