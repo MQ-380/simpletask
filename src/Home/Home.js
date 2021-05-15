@@ -5,52 +5,35 @@ import './Home.scss';
 import { useState } from 'react';
 import  UserInfo  from '../UserInfo/UserInfo';
 import ReviewInfo from '../ReviewInfo/ReviewInfo';
+import TodoList from '../TodoList/TodoList';
 
 
 export default function Home(props){
     const {Header, Content, Footer } = Layout;
     const { user: {userType} } = props;
 
-    let [ menuContent, setMenuContent ] = useState(userType === 'admin' ? '0' : '2');
-
-    const handleMenuClick = (e) =>{
-        console.log(e.key);
-    }
-
-    const menu = (
-        <Menu onClick={handleMenuClick}>
-        <Menu.Item key="1" icon={<UserOutlined />}>
-            User Info
-        </Menu.Item>
-        <Menu.Item key="2" icon={<UserOutlined />}>
-          Logout
-        </Menu.Item>
-      </Menu>
-    )
-
+    let [ menuContent, setMenuContent ] = useState(userType === 'Admin' ? '0' : '2');
 
     return(
         <Layout className='layout'>
             <Header style={{position: 'fixed', zIndex:'5', width: '100%', padding: 0}}>
                 <div className='logo'></div>
                 <Menu theme='dark' mode='horizontal' defaultSelectedKeys={[menuContent]} onClick={(e) => setMenuContent(e.key)}>
-                    {userType === 'admin' && (<>
+                    {userType === 'Admin' && (<>
                         <Menu.Item key='0'>User</Menu.Item>
                         <Menu.Item key='1'>Review</Menu.Item>
                     </>)}
-                    {userType === 'normal' && <Menu.Item key='2'>Review</Menu.Item>}
+                    {userType === 'Employee' && <Menu.Item key='2'>Review</Menu.Item>}
             </Menu>
-                <Dropdown overlay={menu}  className='icon'>
-                    <Button>
-                        {userType}
-                        <UserOutlined/>
-                    </Button>
-                </Dropdown>
+                <Button className='icon'>
+                    {userType}
+                    <UserOutlined/>
+                </Button>
             </Header>
             <Content style={{padding: '0 10px', marginTop: 64}}>
-                {menuContent === '0' && <UserInfo/>}
-                {menuContent === '1' && <ReviewInfo/>}
-                {/* {menuContent === '2' && <Review/>} */}
+                {menuContent === '0' && <UserInfo username={props.name}/>}
+                {menuContent === '1' && <ReviewInfo username={props.name}/>}
+                {menuContent === '2' && <TodoList username={props.name}/>}
             </Content>
             <Footer style={{textAlign: 'center'}}>AAAA</Footer>
         </Layout>

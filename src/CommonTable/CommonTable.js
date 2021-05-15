@@ -22,7 +22,7 @@ export default function CommonTable(props) {
                     }
                 }
             }}
-            scroll={{x: 700}}/>
+            scroll={{x: 500}}/>
         {showModalType && <InfoModal tableType={tableType} setVisible={setShowModalType} saveInfo={saveInfo} type={showModalType} info={clickedInfo} onCancel={setClickedInfo} allUsers={props.allUsers}/>}
     </>
     )

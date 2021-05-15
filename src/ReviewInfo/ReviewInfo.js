@@ -7,7 +7,6 @@ export default function ReviewInfo (props) {
     let [ showModalType, setShowModalType ] = useState(false);
     let [ clickedInfo, setClickedInfo ] = useState({});
     let [ loading, setLoading ] = useState(true);
-    let userFilter = [];
 
     useEffect(() => {
         let data = [];
@@ -18,17 +17,17 @@ export default function ReviewInfo (props) {
                 key: i.toString(),
                 from: `User ${i}`,
                 to: `User ${20-i}`,
-                content: '由于一直在用 vue 写业务，为了熟悉下 react 开发模式，所以选择了 react。数据库一开始用的是 mongodb，后来换成 mysql 了，一套下来感觉 mysql 也挺好上手的。react-router、koa、mysql 都是从0开始接触开发的，期间遇到过很多问题，印象最深的是 react-router 参考官方文档配置的，楞是跑不起来，花费了好几个小时，最后才发现看的文档是v1.0, 而项目中是v4.3， 好在可参考的资料比较多，问题都迎刃而解了。',
+                content: '21',
                 hasBeenDone: i % 2 ,
-                addPeople: 'admin1',
+                addPeople: props.name,
             });
             user.push({
                 name: `User ${i}`,
             })
         }
         user.push({
-            name: 'admin1', isAdmin: true
-        }, {name:" admin3", isAdmin: true})
+            name: 'Admin1', isAdmin: true
+        }, {name:" Admin3", isAdmin: true})
         setTimeout(() => {
             setOriginData(data);
             setAllUsers(user);

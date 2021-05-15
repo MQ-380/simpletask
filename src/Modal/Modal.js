@@ -17,14 +17,16 @@ export const InfoModal = (props) => {
         isEditModel = isEditModel && !props.info.hasBeenDone
     }
 
-    const handleOk = () => {
+    const handleOk = async () => {
         //setModalText('The modal will be closed after two seconds');
         setConfirmLoading(true);
-        setTimeout(() => {
-            props.saveInfo(form.getFieldsValue(true), props.info, isEdit ? 'edit' : 'add');
+        try {
+            await props.saveInfo(form.getFieldsValue(true), props.info, isEdit ? 'edit' : 'add');
             setConfirmLoading(false);
             props.setVisible(false);
-        }, 2000);
+        } catch(e) {
+            setConfirmLoading(false);
+        }
     };
 
     const handleCancel = () => {
@@ -34,7 +36,6 @@ export const InfoModal = (props) => {
     };
 
     return (
-        <>
         <Modal
             title={props.tableType}
             visible={true}
@@ -69,11 +70,11 @@ export const InfoModal = (props) => {
                     ]}
                 >
                     {<Select defaultValue={props.info && props.info.userType} disabled={!isEditModel}>
-                        <Select.Option value="normal">Employee</Select.Option>
-                        <Select.Option value="admin">Admin</Select.Option>
+                        <Select.Option value="Employee">Employee</Select.Option>
+                        <Select.Option value="Admin">Admin</Select.Option>
                     </Select>}
                 </Form.Item>
-                {
+                {/* {
                     isEdit && (
                         <>
                             <Form.Item name="age" label="reviewed">
@@ -87,7 +88,7 @@ export const InfoModal = (props) => {
                             </Form.Item>
                         </>
                     )
-                } 
+                }  */}
             </Form>}
             {props.tableType === 'review' && <Form form={form} layout="vertical" name="userForm">
                 <Form.Item
@@ -139,11 +140,11 @@ export const InfoModal = (props) => {
                 </>}
                 </Form>}
             {
-                (isEdit && !editModel && props.tableType === 'review' && !props.info.hasBeenDone) && 
+                (isEdit && !editModel && (props.tableType !== 'review' || (props.tableType === 'review' && !props.info.hasBeenDone))) && 
                     (
                     <Space style={{
                         position: 'absolute',
-                        bottom: '100px',
+                        bottom: '50px',
                         right: '5%',
                     }}>
                         <Button  onClick={() => {
@@ -171,6 +172,50 @@ export const InfoModal = (props) => {
                     </Space>)
             }
         </Modal>
-        </>
     );
 };
+
+
+export const ReviewModal = (props) => {
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [form] = Form.useForm(); 
+    //props.fromPerson
+    const handleOk = () => {
+        setConfirmLoading(true);
+        setTimeout(() => {
+            props.saveInfo(form.getFieldsValue(true), props.info);
+            setConfirmLoading(false);
+            props.setVisible(false);
+        }, 2000);
+    };
+
+    const handleCancel = () => {
+        props.setVisible(false);
+    };
+
+    return (
+        <Modal
+            title={'review'}
+            visible={true}
+            onOk={handleOk}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+        >
+            {<Form form={form} layout="vertical" name="userForm">
+                <Form.Item name="to" label="feedback to">
+                    <span className='ant-form-text'>{props.info.to}</span>
+                </Form.Item>
+                <Form.Item
+                    name="content"
+                    label="content"
+                    rules={[
+                        {required: true},
+                    ]}
+                >
+                    <Input.TextArea rows={5}/>
+                </Form.Item>
+            </Form>}
+        </Modal>   
+    );
+
+}

@@ -30,7 +30,7 @@ function App() {
     // </BrowserRouter>
     <div className='Home'>
       {!login && <Login setLogin={setLogin}/>}
-      {login && <Home user={{userType: 'admin'}}></Home>}
+      {login && <Home user={{userType: 'Admin', name: 'Admin1'}}></Home>}
     </div>
   )
 }

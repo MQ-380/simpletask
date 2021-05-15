@@ -9,24 +9,19 @@ export default function UserInfo () {
     let [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
-        let data = [];
-        // get user info api;
-        for(let i = 0; i < 20; i++) {
-            data.push({
-                key: i.toString(),
-                name: `User ${i}`,
-                age: i + 20,
-                reviewed: i+9,
-                todo: 4,
-                done: 4,
-                userType: 'normal',
-            });
+        async function getData() {
+            let data = [];
+            // get user info api;
+            let res = await fetch('http://localhost:7000/users/users').then(res => res.json());
+            if(res.code === 200) {
+                
+                setOriginData(res.data);
+                setLoading(false);
+            } else {
+                getData();
+            }
         }
-        setTimeout(() => {
-            setOriginData(data);
-            setLoading(false);
-        }, 1000)
-
+        getData();
     }, []);
 
     const columns =[
@@ -35,77 +30,124 @@ export default function UserInfo () {
             dataIndex: 'name',
             key: 'name',
             fixed: 'left',
-            width: 20,
+            width: 50,
         },
         {
             title: 'Age',
             dataIndex: 'age',
             key: 'age',
-            width: 20,
+            width: 50,
         },
         {
             title: 'Type',
             dataIndex: 'userType',
             key: 'userType',
-            width: 30,
+            width: 90,
         },
-        {
-            title: 'Reviewed',
-            dataIndex: 'reviewed',
-            key: 'reviewed',
-            sorter: (a,b) => a.reviewed - b.reviewed,
-            sortDirections: ['descend', 'ascend'],
-            width: 20,
-        },
-        {
-            title: 'Todo',
-            dataIndex: 'todo',
-            key: 'todo',
-            sorter: (a,b) => a.todo - b.todo,
-            sortDirections: ['descend', 'ascend'],
-            width: 20,
-        },
-        {
-            title: 'Done',
-            dataIndex: 'done',
-            key: 'done',
-            sorter: (a,b) => a.done - b.done,
-            sortDirections: ['descend', 'ascend'],
-            width: 20,
-        },
+        // {
+        //     title: 'Reviewed',
+        //     dataIndex: 'reviewed',
+        //     key: 'reviewed',
+        //     sorter: (a,b) => a.reviewed - b.reviewed,
+        //     sortDirections: ['descend', 'ascend'],
+        //     width: 20,
+        // },
+        // {
+        //     title: 'Todo',
+        //     dataIndex: 'todo',
+        //     key: 'todo',
+        //     sorter: (a,b) => a.todo - b.todo,
+        //     sortDirections: ['descend', 'ascend'],
+        //     width: 20,
+        // },
+        // {
+        //     title: 'Done',
+        //     dataIndex: 'done',
+        //     key: 'done',
+        //     sorter: (a,b) => a.done - b.done,
+        //     sortDirections: ['descend', 'ascend'],
+        //     width: 20,
+        // },
     ]
 
-    const saveInfo = (info, prevRecord, model) => {
+    const saveInfo = async (info, prevRecord, model) => {
         // getInfo from backend
-        console.log('123', info);
         let e = [...originData];
         if(model === 'edit') {
+            
             let index = e.findIndex(item => item.key === prevRecord.key);
             if(index >= 0) {
                 let item = e[index];
                 if(info.name) item.name = info.name;
                 if(info.age) item.age = info.age;
                 if(info.type) item.userType = info.type;
-                e[index] = item;
+                try {
+                    let res = await fetch('http://localhost:7000/users/editUser', {
+                        method: 'POST',
+                        body: JSON.stringify(item)
+                    });
+                    if(res.code === 200) {
+                        e[index] = item;
+                    } 
+                } catch(ey) {
+                    return Promise.reject();
+                }
+  
             }
         } else if(model === 'add') {
-            e.unshift({
-                key: e.length.toString(),
-                name: info.name,
-                age: info.age,
-                reviewed: 9,
-                todo: 4,
-                done: 4,
-                userType: info.type,
-            });
+            try {
+                let res = await fetch('http://localhost:7000/users/addUser', {
+                    method: 'POST', 
+                    body: JSON.stringify({
+                        username: info.name,
+                        usertype: info.type,
+                        age: info.age
+                    })
+                });
+                if(res.status === 200) {
+                    e.unshift({
+                        key: e.length.toString(),
+                        name: info.name,
+                        age: info.age,
+                        reviewed: 9,
+                        todo: 4,
+                        done: 4,
+                        userType: info.type,
+                    });
+                } else {
+                    setClickedInfo({});
+                    return Promise.reject();
+                }
+            } catch(ey) {
+                console.log(ey);
+                setClickedInfo({});
+                return Promise.reject();
+            }
         } else if(model === 'delete') {
+            
             let index = e.findIndex(item => item.key === prevRecord.key);
-            console.log(index);
-            e.splice(index,1);
+            try {
+                let res = await fetch('http://localhost:7000/users/delUser', {
+                    method: 'POST', 
+                    body: JSON.stringify({
+                        user_id: e[index].key
+                    })
+                });
+                if(res.status === 200) {
+                    e.splice(index,1);
+                } else {
+                    return Promise.reject();
+                }
+            } catch(ey) {
+                console.log(ey);
+                setClickedInfo({});
+                return Promise.reject();
+            }
         }
-        
         setOriginData(e);
         setClickedInfo({});
+        return Promise.resolve();
+  
     }
 
     return  (
