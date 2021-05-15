@@ -4,6 +4,7 @@ import 'antd/dist/antd.css';
 import './Home.scss';
 import { useState } from 'react';
 import  UserInfo  from '../UserInfo/UserInfo';
+import ReviewInfo from '../ReviewInfo/ReviewInfo';
 
 
 export default function Home(props){
@@ -30,7 +31,7 @@ export default function Home(props){
 
     return(
         <Layout className='layout'>
-            <Header style={{position: 'fixed', zIndex:'1', width: '100%', padding: 0}}>
+            <Header style={{position: 'fixed', zIndex:'5', width: '100%', padding: 0}}>
                 <div className='logo'></div>
                 <Menu theme='dark' mode='horizontal' defaultSelectedKeys={[menuContent]} onClick={(e) => setMenuContent(e.key)}>
                     {userType === 'admin' && (<>
@@ -48,8 +49,8 @@ export default function Home(props){
             </Header>
             <Content style={{padding: '0 10px', marginTop: 64}}>
                 {menuContent === '0' && <UserInfo/>}
-                {/* {menuContent === '1' && <ReviewInfo/>}
-                {menuContent === '2' && <Review/>} */}
+                {menuContent === '1' && <ReviewInfo/>}
+                {/* {menuContent === '2' && <Review/>} */}
             </Content>
             <Footer style={{textAlign: 'center'}}>AAAA</Footer>
         </Layout>

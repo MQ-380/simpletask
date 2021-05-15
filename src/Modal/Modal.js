@@ -3,7 +3,7 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
 
-export const UserInfoModal = (props) => {
+export const InfoModal = (props) => {
     const [confirmLoading, setConfirmLoading] = useState(false);
     //const [modalText, setModalText] = useState('Content of the modal');
     const [form] = Form.useForm(); 
@@ -12,12 +12,16 @@ export const UserInfoModal = (props) => {
     const [editModel, setEditModel] = useState(false);
     let isEdit = props.type === 'edit';
     let isEditModel = (isEdit && editModel) || props.type === 'add';
+    if(props.tableType === 'review') {
+        //if the review has been done by the employee, it couldn't be edited.
+        isEditModel = isEditModel && !props.info.hasBeenDone
+    }
 
     const handleOk = () => {
         //setModalText('The modal will be closed after two seconds');
         setConfirmLoading(true);
         setTimeout(() => {
-            props.saveInfo(form.getFieldsValue(true), props.userInfo, isEdit ? 'edit' : 'add');
+            props.saveInfo(form.getFieldsValue(true), props.info, isEdit ? 'edit' : 'add');
             setConfirmLoading(false);
             props.setVisible(false);
         }, 2000);
@@ -32,13 +36,13 @@ export const UserInfoModal = (props) => {
     return (
         <>
         <Modal
-            title="Title"
+            title={props.tableType}
             visible={true}
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
         >
-            <Form form={form} layout="vertical" name="userForm">
+            {props.tableType === 'user' && <Form form={form} layout="vertical" name="userForm">
                 <Form.Item
                     name="name"
                     label="user name"
@@ -46,10 +50,7 @@ export const UserInfoModal = (props) => {
                         {required: true,},
                     ]}
                 >
-                    {<Input defaultValue={props.userInfo && props.userInfo.name} disabled={!isEditModel}/>}
-                    {/* {!isEditModel && (
-                        <span className='ant-form-text'>{props.userInfo.name}</span> 
-                    )} */}
+                    <Input defaultValue={props.info && props.info.name} disabled={!isEditModel}/>
                 </Form.Item>
                 <Form.Item
                     name="age"
@@ -58,10 +59,7 @@ export const UserInfoModal = (props) => {
                         {required: true,},
                     ]}
                 >
-                    {<InputNumber defaultValue={props.userInfo && props.userInfo.age} disabled={!isEditModel}/>}
-                    {/* {!isEditModel && (
-                        <span className='ant-form-text'>{props.userInfo.age}</span> 
-                    )} */}
+                    <InputNumber defaultValue={props.info && props.info.age} disabled={!isEditModel}/>
                 </Form.Item>
                 <Form.Item
                     name="type"
@@ -70,32 +68,78 @@ export const UserInfoModal = (props) => {
                         {required: true,},
                     ]}
                 >
-                    {<Select defaultValue={props.userInfo && props.userInfo.userType} disabled={!isEditModel}>
+                    {<Select defaultValue={props.info && props.info.userType} disabled={!isEditModel}>
                         <Select.Option value="normal">Employee</Select.Option>
                         <Select.Option value="admin">Admin</Select.Option>
                     </Select>}
-                    {/* {!isEditModel && (
-                        <span className='ant-form-text'>{props.userInfo.age}</span> 
-                    )} */}
                 </Form.Item>
                 {
                     isEdit && (
                         <>
                             <Form.Item name="age" label="reviewed">
-                                <span className='ant-form-text'>{props.userInfo.reviewed}</span>
+                                <span className='ant-form-text'>{props.info.reviewed}</span>
                             </Form.Item>
                             <Form.Item name="age" label="todo">
-                                <span className='ant-form-text'>{props.userInfo.todo}</span>
+                                <span className='ant-form-text'>{props.info.todo}</span>
                             </Form.Item>
                             <Form.Item name="age" label="done">
-                                <span className='ant-form-text'>{props.userInfo.done}</span>
+                                <span className='ant-form-text'>{props.info.done}</span>
                             </Form.Item>
                         </>
                     )
                 } 
-            </Form>
+            </Form>}
+            {props.tableType === 'review' && <Form form={form} layout="vertical" name="userForm">
+                <Form.Item
+                    name="from"
+                    label="from"
+                    rules={[
+                        {required: true,},
+                    ]}
+                >
+                    <Select 
+                        defaultValue={props.info && props.info.from} 
+                        disabled={!isEditModel}>
+                        {
+                            props.allUsers.map((item, index) => (
+                                <Select.Option key={index} value={item.name}>{item.name}</Select.Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+                <Form.Item
+                    name="to"
+                    label="to"
+                    rules={[
+                        {required: true,},
+                    ]}
+                >
+                    <Select 
+                        defaultValue={props.info && props.info.to} 
+                        disabled={!isEditModel}
+                    >
+                        {
+                            props.allUsers.map((item, index) => (
+                                <Select.Option key={index} value={item.name}>{item.name}</Select.Option>
+                            ))
+                        }
+                    </Select>
+                </Form.Item>
+                { isEdit && 
+                 <>   
+                    <Form.Item name="reviewed" label="reviewed">
+                        <span className='ant-form-text'>{props.info.content}</span>
+                    </Form.Item>
+                    <Form.Item name="hasBeenDone" label="hasBeenDone">
+                        <span className='ant-form-text'>{props.info.hasBeenDone ? 'yes' : 'no'}</span>
+                    </Form.Item>
+                    <Form.Item name="addPeople" label="Assigned By">
+                        <span className='ant-form-text'>{props.info.addPeople}</span>
+                    </Form.Item>
+                </>}
+                </Form>}
             {
-                (isEdit && !editModel) && 
+                (isEdit && !editModel && props.tableType === 'review' && !props.info.hasBeenDone) && 
                     (
                     <Space style={{
                         position: 'absolute',
@@ -107,7 +151,7 @@ export const UserInfoModal = (props) => {
                         }}>
                             Edit
                         </Button>
-                        <Button onClick={() => {
+                       {props.tableType === 'user' && <Button onClick={() => {
                             confirm({
                                 title: 'Are you sure to delete the info of this person ?',
                                 icon:  <ExclamationCircleOutlined />,
@@ -116,14 +160,14 @@ export const UserInfoModal = (props) => {
                                 okType: 'danger',
                                 cancelText: 'no',
                                 onOk() {
-                                    props.saveInfo({}, props.userInfo, 'delete');
+                                    props.saveInfo({}, props.info, 'delete');
                                     setConfirmLoading(false);
                                     props.setVisible(false);
                                 },
                             })
                         }} type="primary" danger>
                             Delete
-                        </Button>
+                        </Button>}
                     </Space>)
             }
         </Modal>
