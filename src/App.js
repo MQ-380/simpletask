@@ -49,8 +49,6 @@ function App() {
     return "";
   }
 
-
-
   function loginSuccess({ username, userType }) {
     setUserInfo({ name: username, userType });
     setLogin(true);

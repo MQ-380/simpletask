@@ -42,6 +42,16 @@ Database:
 5. In the review management, the review info only can be edited when it have not been done.
 6. As employee users, you can only fill the request and give the feedback.
 
+
+## Frontend Structrue:
+App -> Login -> Home  - (Admin user) -> UserInfo     -> CommonTable  ->  Add/Delete/Edit/Find
+                      - (Admin user) -> ReviewInfo   -> CommonTable  ->  Add/Edit/Find
+                      - (Employee user) -> TodoList  -> ButtonClick  ->  Modal to do the review
+    -> No Login -> Login 
+
+## Backend Structrue:
+app -> routes -> controller -> module -> database operate -> callback
+
 ## Page Introduction
 1. Login Page
 2. User Management Page
@@ -103,6 +113,14 @@ CREATE TABLE `reviews` (
   PRIMARY KEY (`review_id`)
 );
 ```
+
+## Can be improved
+1. Login function can be improved to the true login.
+2. The apis should have the authentication to provide the attacking.
+3. The user table can provide more data of the review situation.
+4. The logger and security operation should be improved in the backend server.
+   
+
 
 ** Thanks for your time to review my work. Have a nice day~ **
 

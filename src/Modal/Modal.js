@@ -6,11 +6,10 @@ import { error } from './NoticeModals';
 
 export const InfoModal = (props) => {
     const [confirmLoading, setConfirmLoading] = useState(false);
-    //const [modalText, setModalText] = useState('Content of the modal');
     const [form] = Form.useForm(); 
     const { confirm } = Modal;
-
     const [editModel, setEditModel] = useState(false);
+
     let isEdit = props.type === 'edit';
     let isEditModel = (isEdit && editModel) || props.type === 'add';
     if(props.tableType === 'review') {
@@ -19,7 +18,6 @@ export const InfoModal = (props) => {
     }
 
     const handleOk = async () => {
-        //setModalText('The modal will be closed after two seconds');
         setConfirmLoading(true);
         try {
             await props.saveInfo(form.getFieldsValue(true), props.info, isEdit ? 'edit' : 'add');
@@ -44,6 +42,7 @@ export const InfoModal = (props) => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
         >
+            {/*The item of user table */}
             {props.tableType === 'user' && <Form form={form} layout="vertical" name="userForm">
                 <Form.Item
                     name="name"
@@ -91,6 +90,7 @@ export const InfoModal = (props) => {
                     )
                 }  */}
             </Form>}
+            {/*The item of review table */}
             {props.tableType === 'review' && <Form form={form} layout="vertical" name="userForm">
                 <Form.Item
                     name="from"
