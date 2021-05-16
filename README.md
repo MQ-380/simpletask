@@ -1,70 +1,112 @@
-# Getting Started with Create React App
+# PAYPAY CODE CHALLENGE
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Tech Introduction
+Frontend: 
+* React
+* React Hook : All made by Functional Component 
+* Antd: The component CSS is done by Antd style.
+* Webpack, Babel: the default setting of create-react-app
 
-## Available Scripts
+Backend:
+* Node.js
+* Koa: Using the Koa framework 
 
-In the project directory, you can run:
+Database:
+* Mysql
 
-### `yarn start`
+## How to Run
+### Config
+1. made the database done
+    remember the database name, the username and the password
+2. Search "Config database here" in the project
+    let the value be the correct one.
+3. Search "config here". There will be two parts to be filled or corrected.
+   backend_prefix:   the API address prefix, the default port of this backend server is 7000.
+   frontend_address: the address which is the frontend, the defaulut port is 3000.
+### Frontend
+1. cd ${Project_address}
+2. yarn 
+3. yarn start
+4. open the browser.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Backend
+1. cd app
+2. npm install
+3. npm run dev  / npm start
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## How to Use 
+1. There is a default user "root", use this name and put any words in password filed to login the system as admin user.
+2. The login function is the mock one, the username must be added to the database, but the password is not checked, please use any words you like~.
+3. The system has two kind of user, which are 'Admin' and 'Employee'. The functional diffirence is as same as the introduction.
+4. As admin users, you can add user which is admin or employee, and request the review to the employee or the other admin.
+5. In the review management, the review info only can be edited when it have not been done.
+6. As employee users, you can only fill the request and give the feedback.
 
-### `yarn test`
+## Page Introduction
+1. Login Page
+2. User Management Page
+3. Review Management Page
+4. Fill Review Page
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In the table, you can click the row and get in to the detail Modal or edit the information.
 
-### `yarn build`
+the 3 and 4 are using the one Component called "CommonTable", which is setting by the props.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## API Introduction (10 APIs)
+1. Login
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+/login: (username) => {code, statue, data: {the login user}}
+2. User 
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+/user/users: () => {code, msg, data (all Users)}
 
-### `yarn eject`
+/user/addUser: (username, usertype, userage) => {code, msg, data(all Users after add)}
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+/user/editUser: (username, usertype, userage) => {code, msg}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+/user/delUser: (user_id) => {code, msg}
+3. Review
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+/review/reviews: () => {code, msg, data(all Reviews)}
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+/review/addReview: (from, to, nowUser) => {code, msg}
 
-## Learn More
+/review/editReview: (from,to) => {code, msg}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+/review/getReviewList: (nowUser) => {code, msg, data(all reviews to be done by now user)}
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+/review/completeReview: (content) => {code, msg}
 
-### Code Splitting
+## Database SQL:
+```sql
+-- users definition
+CREATE TABLE `users` (
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(255) NOT NULL,
+  `user_age` int NOT NULL,
+  `user_type` varchar(255) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`user_id`)
+);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+-- reviews definition
+CREATE TABLE `reviews` (
+  `review_id` int NOT NULL AUTO_INCREMENT,
+  `review_from` varchar(255) NOT NULL,
+  `review_to` int NOT NULL,
+  `has_done` tinyint(1) NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `create_by` varchar(255) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`review_id`)
+);
+```
 
-### Analyzing the Bundle Size
+** Thanks for your time to review my work. Have a nice day~ **
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React from 'react';
 import { Space, Table, Button } from 'antd';
 import { InfoModal } from '../Modal/Modal';
 

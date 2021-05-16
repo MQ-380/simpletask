@@ -11,7 +11,8 @@ const index = require('./routes/index')
 const users = require('./routes/users')
 const reviews = require('./routes/reviews');
 
-const frontend_address = 'http://localhost:3001';
+//config here
+const frontend_address = 'http://localhost:3000';
 
 // error handler
 onerror(app)
