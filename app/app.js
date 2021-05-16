@@ -11,6 +11,8 @@ const index = require('./routes/index')
 const users = require('./routes/users')
 const reviews = require('./routes/reviews');
 
+const frontend_address = 'http://localhost:3001';
+
 // error handler
 onerror(app)
 
@@ -19,7 +21,10 @@ app.use(bodyparser({
   enableTypes:['json', 'form', 'text']
 }))
 
-app.use(cors());
+app.use(cors({
+  origin: frontend_address,
+  credentials: true
+}));
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))

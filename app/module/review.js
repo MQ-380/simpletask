@@ -6,7 +6,6 @@ Review.sync({force: false})
 
 class ReviewModule {
     static async getReviews(query){
-        console.log('query',query)
         return await Review.findAll({
             where: {
                 ...query
@@ -18,21 +17,48 @@ class ReviewModule {
       
     }
 
-    static async delUser(user_id){
-        return await Review.destroy({
-            where:{
-                user_id
+    static async editReview(body) {
+        let query = JSON.parse(body);
+        return await Review.update({
+            review_from: query.from,
+            review_to: query.to
+        },{
+            where: {
+                review_id: query.key
             }
         })
     }
 
-    static async addUsers(body){
+    static async addReview(body){
         let query = JSON.parse(body);
         return await Review.create({
-            user_name: query.username,
-            user_type:query.usertype,
-            user_age: query.age
+            review_from: query.from,
+            review_to:query.to,
+            content: '',
+            has_done: false,
+            create_by: query.addPeople,
         })
+    }
+
+    static async getReviewList(body) {
+        let query = JSON.parse(body);
+        return await Review.findAll({
+            where: {
+                review_from: query.now_user,
+            }
+        });
+    }
+
+    static async completeReview(body) {
+        let query = JSON.parse(body);
+        return await Review.update({
+                content: query.content,
+                has_done: true,
+            },
+            {where: {
+                review_id: query.review_id,
+
+            }});
     }
 }
 

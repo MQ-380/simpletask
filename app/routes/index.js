@@ -1,4 +1,5 @@
 const router = require('koa-router')()
+const UserController = require('../controller/user')
 
 router.get('/', async (ctx, next) => {
   await ctx.render('index', {
@@ -15,6 +16,8 @@ router.get('/json', async (ctx, next) => {
     title: 'koa2 json'
   }
 })
+
+router.post('/login', UserController.login);
 
 
 module.exports = router

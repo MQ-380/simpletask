@@ -1,5 +1,7 @@
 import React, { useState, useEffect} from 'react';
+import { message } from 'antd';
 import CommonTable from '../CommonTable/CommonTable';
+import { backend_prefix } from '../config';
 
 
 export default function UserInfo () {
@@ -10,15 +12,18 @@ export default function UserInfo () {
 
     useEffect(() => {
         async function getData() {
-            let data = [];
-            // get user info api;
-            let res = await fetch('http://localhost:7000/users/users').then(res => res.json());
-            if(res.code === 200) {
-                
-                setOriginData(res.data);
+            try {
+                let res = await fetch(`${backend_prefix}/users/users`).then(res => res.json());
+                if(res.code === 200) {
+                    setOriginData(res.data);
+                    setLoading(false);
+                } else {
+                    message.error(res.msg ||  'An error occured, please refresh~');
+                    setLoading(false);
+                }
+            } catch (e) {
+                message.error(e.msg || 'An error occured, please refresh~');
                 setLoading(false);
-            } else {
-                getData();
             }
         }
         getData();
@@ -74,7 +79,6 @@ export default function UserInfo () {
         // getInfo from backend
         let e = [...originData];
         if(model === 'edit') {
-            
             let index = e.findIndex(item => item.key === prevRecord.key);
             if(index >= 0) {
                 let item = e[index];
@@ -82,13 +86,15 @@ export default function UserInfo () {
                 if(info.age) item.age = info.age;
                 if(info.type) item.userType = info.type;
                 try {
-                    let res = await fetch('http://localhost:7000/users/editUser', {
+                    let res = await fetch(`${backend_prefix}/users/editUser`, {
                         method: 'POST',
                         body: JSON.stringify(item)
                     });
                     if(res.code === 200) {
                         e[index] = item;
-                    } 
+                    } else {
+                        return Promise.reject();
+                    }
                 } catch(ey) {
                     return Promise.reject();
                 }
@@ -96,38 +102,28 @@ export default function UserInfo () {
             }
         } else if(model === 'add') {
             try {
-                let res = await fetch('http://localhost:7000/users/addUser', {
+                let res = await fetch(`${backend_prefix}/users/addUser`, {
                     method: 'POST', 
                     body: JSON.stringify({
                         username: info.name,
                         usertype: info.type,
                         age: info.age
                     })
-                });
-                if(res.status === 200) {
-                    e.unshift({
-                        key: e.length.toString(),
-                        name: info.name,
-                        age: info.age,
-                        reviewed: 9,
-                        todo: 4,
-                        done: 4,
-                        userType: info.type,
-                    });
+                }).then(res => res.json());
+                if(res.code === 200) {
+                    e = res.newData;
                 } else {
                     setClickedInfo({});
                     return Promise.reject();
                 }
-            } catch(ey) {
-                console.log(ey);
+            } catch(e) {
                 setClickedInfo({});
                 return Promise.reject();
             }
         } else if(model === 'delete') {
-            
             let index = e.findIndex(item => item.key === prevRecord.key);
             try {
-                let res = await fetch('http://localhost:7000/users/delUser', {
+                let res = await fetch(`${backend_prefix}/users/delUser`, {
                     method: 'POST', 
                     body: JSON.stringify({
                         user_id: e[index].key
@@ -138,8 +134,7 @@ export default function UserInfo () {
                 } else {
                     return Promise.reject();
                 }
-            } catch(ey) {
-                console.log(ey);
+            } catch(e) {
                 setClickedInfo({});
                 return Promise.reject();
             }
@@ -147,7 +142,6 @@ export default function UserInfo () {
         setOriginData(e);
         setClickedInfo({});
         return Promise.resolve();
-  
     }
 
     return  (

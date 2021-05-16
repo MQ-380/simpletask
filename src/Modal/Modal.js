@@ -1,6 +1,7 @@
 import { Modal, Button, Form, Input, InputNumber, Space, Select } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useState } from 'react';
+import { error } from './NoticeModals';
 
 
 export const InfoModal = (props) => {
@@ -25,12 +26,12 @@ export const InfoModal = (props) => {
             setConfirmLoading(false);
             props.setVisible(false);
         } catch(e) {
+            error((e && e.msg )|| 'There is an error, please try again~');
             setConfirmLoading(false);
         }
     };
 
     const handleCancel = () => {
-        console.log('Clicked cancel button');
         props.setVisible(false);
         props.onCancel({});
     };
@@ -128,10 +129,10 @@ export const InfoModal = (props) => {
                 </Form.Item>
                 { isEdit && 
                  <>   
-                    <Form.Item name="reviewed" label="reviewed">
+                    <Form.Item name="content" label="Content">
                         <span className='ant-form-text'>{props.info.content}</span>
                     </Form.Item>
-                    <Form.Item name="hasBeenDone" label="hasBeenDone">
+                    <Form.Item name="hasBeenDone" label="Has Been Done">
                         <span className='ant-form-text'>{props.info.hasBeenDone ? 'yes' : 'no'}</span>
                     </Form.Item>
                     <Form.Item name="addPeople" label="Assigned By">
@@ -144,8 +145,8 @@ export const InfoModal = (props) => {
                     (
                     <Space style={{
                         position: 'absolute',
-                        bottom: '50px',
-                        right: '5%',
+                        bottom: '10px',
+                        left: '5%',
                     }}>
                         <Button  onClick={() => {
                             setEditModel(true)
@@ -160,10 +161,13 @@ export const InfoModal = (props) => {
                                 okText: 'yes',
                                 okType: 'danger',
                                 cancelText: 'no',
-                                onOk() {
-                                    props.saveInfo({}, props.info, 'delete');
-                                    setConfirmLoading(false);
-                                    props.setVisible(false);
+                                onOk: async ()  => {
+                                    try {
+                                        await props.saveInfo({}, props.info, 'delete');
+                                        props.setVisible(false);
+                                    } catch(e) {
+                                        error((e && e.msg )|| 'There is an error, please try again~');
+                                    }
                                 },
                             })
                         }} type="primary" danger>
@@ -180,13 +184,17 @@ export const ReviewModal = (props) => {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [form] = Form.useForm(); 
     //props.fromPerson
-    const handleOk = () => {
+    const handleOk = async () => {
         setConfirmLoading(true);
-        setTimeout(() => {
-            props.saveInfo(form.getFieldsValue(true), props.info);
+        try {
+            await props.saveInfo(form.getFieldsValue(true), props.info);
             setConfirmLoading(false);
             props.setVisible(false);
-        }, 2000);
+        } catch(err) {
+            //modal 
+            error(err.msg || 'There is an error, please try again~');
+            setConfirmLoading(false);
+        }
     };
 
     const handleCancel = () => {
@@ -203,7 +211,7 @@ export const ReviewModal = (props) => {
         >
             {<Form form={form} layout="vertical" name="userForm">
                 <Form.Item name="to" label="feedback to">
-                    <span className='ant-form-text'>{props.info.to}</span>
+                    <span className='ant-form-text'>{props.info.review_to}</span>
                 </Form.Item>
                 <Form.Item
                     name="content"

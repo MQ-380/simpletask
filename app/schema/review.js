@@ -22,14 +22,14 @@ const review = (sequelize, DataTypes) => {
             field: 'has_done'
         },
         content: {
-            type: DataTypes.STRING(100000),
+            type: DataTypes.STRING(1000),
             allowNull: false,
-            field: 'has_done'
+            field: 'content'
         },
         create_by: {
             type: DataTypes.STRING,
             allowNull: false,
-            field: 'has_done'
+            field: 'create_by'
         },
 
     },{

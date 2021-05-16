@@ -1,4 +1,4 @@
-import { Layout, Menu, Dropdown, Button } from 'antd';
+import { Layout, Menu, Modal, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons'
 import 'antd/dist/antd.css';
 import './Home.scss';
@@ -10,7 +10,7 @@ import TodoList from '../TodoList/TodoList';
 
 export default function Home(props){
     const {Header, Content, Footer } = Layout;
-    const { user: {userType} } = props;
+    const { user: {userType, name} } = props;
 
     let [ menuContent, setMenuContent ] = useState(userType === 'Admin' ? '0' : '2');
 
@@ -25,15 +25,26 @@ export default function Home(props){
                     </>)}
                     {userType === 'Employee' && <Menu.Item key='2'>Review</Menu.Item>}
             </Menu>
-                <Button className='icon'>
+                <Button className='icon' onClick={() => {
+                    Modal.confirm({
+                        title: 'Are you sure to logout?',
+                        content: '',
+                        okText: 'Sure',
+                        okType: 'danger',
+                        cancelText: 'Cancel',
+                        onOk: async ()  => {
+                            props.setLogOut();
+                        },
+                    })
+                }}>
                     {userType}
                     <UserOutlined/>
                 </Button>
             </Header>
             <Content style={{padding: '0 10px', marginTop: 64}}>
-                {menuContent === '0' && <UserInfo username={props.name}/>}
-                {menuContent === '1' && <ReviewInfo username={props.name}/>}
-                {menuContent === '2' && <TodoList username={props.name}/>}
+                {menuContent === '0' && <UserInfo username={name}/>}
+                {menuContent === '1' && <ReviewInfo username={name}/>}
+                {menuContent === '2' && <TodoList username={name}/>}
             </Content>
             <Footer style={{textAlign: 'center'}}>AAAA</Footer>
         </Layout>

@@ -6,21 +6,24 @@ User.sync({force: false})
 
 class UserModule {
     static async getUsers(query){
-        console.log('query',query)
         return await User.findAll({
-            where: {
-                ...query
-            },
             order:[
                 ["user_id","DESC"]
             ],
         })
-      
+    }
+
+    static async queryUsers(body) {
+        let query = JSON.parse(body);
+        return await User.findAll({
+            where: {
+                user_name: query.user_name,
+            }
+        })
     }
 
     static async delUser(body){
         let query = JSON.parse(body);
-        console.log(query);
         return await User.destroy({
             where:{
                 user_id: query.user_id
@@ -39,7 +42,6 @@ class UserModule {
 
     static async editUser(body) {
         let query = JSON.parse(body);
-        console.log(query.name);
         return await User.update({
             user_name: query.name,
             user_type: query.userType,

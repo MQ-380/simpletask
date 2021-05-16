@@ -5,11 +5,19 @@ class ReviewController {
         const { query } = ctx.request;
         try{
             const data = await ReviewModule.getReviews(query);
+            let newData = data.map(e => ({
+                key: e.review_id,
+                from: e.review_from,
+                to: e.review_to,
+                content: e.content,
+                hasBeenDone: e.has_done,
+                addPeople: e.create_by,
+            }))
             ctx.response.status = 200;
             ctx.body = {
                 code: 200,
                 msg: 'success',
-                data
+                data:newData
             }
         }catch(err){
             ctx.response.status = 412;
@@ -21,11 +29,10 @@ class ReviewController {
         }
     }
 
-    static async addUsers(ctx){
+    static async addReview(ctx){
         const { body } = ctx.request;
         try{
-            console.log(body);
-            const data = await ReviewModule.addUsers(body)
+            const data = await ReviewModule.addReview(body)
             ctx.response.status = 200;
             ctx.body = {
                 code: 200,
@@ -42,60 +49,62 @@ class ReviewController {
         }
     }
 
-    static async delUser(ctx){
-        const query = ctx.params.id;
-        console.log('query', query)
-        if(query){
-            try{
-                const data = await ReviewModule.delUser(query)
-                ctx.response.status = 200;
-                ctx.body = {
-                    code: 200,
-                    msg: 'success',
-                    data
-                }
-            }catch(err){
-                ctx.response.status = 412;
-                ctx.body = {
-                    code: 412,
-                    msg:'error',
-                    err
-                }
-            }
-        }else{
-            ctx.response.status = 416;
+    static async editReview(ctx) {
+        const { body } = ctx.request;
+        try {
+            const data = await ReviewModule.editReview(body);
+            ctx.response.status = 200;
             ctx.body = {
-                code: 416,
-                msg: '缺少id',
+                code: 200,
+                msg: 'success',
+                data
+            }
+        } catch(err) {
+            ctx.response.status = 412;
+            ctx.body = {
+                code: 412,
+                msg: 'error',
+                err
             }
         }
     }
 
-
-    static async login(ctx){
-        const query = ctx.request.body;
-        if(query.password && query.username){
-            try{
-                const data = await ReviewModule.addUsers(query)
-                ctx.response.status = 200;
-                ctx.body = {
-                    code: 200,
-                    msg: 'success',
-                    data
-                }
-            }catch(err){
-                ctx.response.status = 412;
-                ctx.body = {
-                    code: 412,
-                    msg:'error',
-                    err
-                }
-            }
-        }else{
-            ctx.response.status = 416;
+    static async completeReview(ctx) {
+        const { body } = ctx.request;
+        try {
+            const data = await ReviewModule.completeReview(body);
+            ctx.response.status = 200;
             ctx.body = {
-                code: 416,
-                msg: '参数不全'
+                code: 200,
+                msg: 'success',
+                data
+            }
+        } catch(err) {
+            ctx.response.status = 412;
+            ctx.body = {
+                code: 412,
+                msg: 'error',
+                err
+            }
+        }
+    }
+
+    static async getReviewList(ctx) {
+        const { body }  = ctx.request;
+        try {
+            const data = await ReviewModule.getReviewList(body);
+            ctx.response.status = 200;
+            ctx.body = {
+                code: 200,
+                msg: 'success',
+                data
+            }
+        } catch(e) {
+            ctx.response.status = 412;
+            ctx.body = {
+                code: 412,
+                msg: 'error',
+                e
             }
         }
     }

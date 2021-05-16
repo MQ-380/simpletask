@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Spin, Button } from 'antd';
+import { Spin, Button, message } from 'antd';
 import { ReviewModal } from '../Modal/Modal';
+import { backend_prefix } from '../config';
 
 export default function TodoList(props) {
     let [ todoList, setTodoList ] = useState([]);
@@ -8,23 +9,30 @@ export default function TodoList(props) {
     let [ showModal, setShowModal ] = useState(false);
     let [ toDo, setToDo ] = useState({});
 
-
     useEffect(() => {
-        let data = [];
-        for(let i = 0; i < 4; i++) {
-            data.push({
-                key: i.toString(),
-                from: `User 1`,
-                to: `User ${20-i}`,
-            });
+        async function getData() {
+            try {
+                let res = await fetch(`${backend_prefix}/review/getReviewList`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        now_user: props.username,
+                    })
+                }).then(res => res.json());
+                if(res.code === 200) {
+                    let todoList = res.data.filter(item => !item.has_done);
+                    setTodoList(todoList);
+                    setLoading(false);
+                } else {
+                    message.error(res.msg || 'An error occured, please refresh~');
+                    setLoading(false);
+                }
+            } catch(e) {
+                message.error(e.msg || 'An error occured, please refresh~');
+                setLoading(false);
+            }
         }
-
-        setTimeout(() => {
-            setTodoList(data);
-            setLoading(false);
-        }, 1000)
-    }, []);
-
+        getData();
+    }, [props.username]);
 
     return (
         <div className='to_do_list_root' style={{
@@ -62,7 +70,7 @@ export default function TodoList(props) {
                                         setToDo(item);
                                         setShowModal(true);
                                     }} size={'large'} shape="round" style={{marginRight: '10px', marginTop: '10px'}}>
-                                        {item.to}
+                                        {item.review_to}
                                     </Button>
                                 )
                             })
@@ -70,12 +78,28 @@ export default function TodoList(props) {
                     </div>
                 </>
             )}
-            { showModal && <ReviewModal info={toDo} saveInfo={()=>{
-                let index = todoList.findIndex(e => e.to === toDo.to);
+            { showModal && <ReviewModal info={toDo} saveInfo={async (info)=>{
+                let index = todoList.findIndex(e => e.review_id === toDo.review_id);
                 let e = [...todoList];
-                index >= 0 && e.splice(index, 1);
-                setTodoList(e);
-            }} setVisible={setShowModal} from={props.fromPerson}/>}
+                try {
+                    let res = await fetch(`${backend_prefix}/review/completeReview`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            review_id: toDo.review_id,
+                            content: info.content,
+                        })
+                    }).then(res => res.json());
+                    if(res.code === 200 ){
+                        e.splice(index, 1);
+                        setTodoList(e);
+                        return Promise.resolve();
+                    } else {
+                        return Promise.reject(res);
+                    }
+                }catch(err) {
+                    return Promise.reject(err);
+                }
+            }} setVisible={setShowModal} from={props.username}/>}
         </div>
     )
 }

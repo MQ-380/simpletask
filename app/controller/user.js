@@ -32,12 +32,19 @@ class UserController {
     static async addUsers(ctx){
         const { body } = ctx.request;
         try{
-            const data = await UserModule.addUsers(body)
+            const data = await UserModule.addUsers(body);
+            const backData = await UserModule.getUsers(body);
+            let newData = backData.map(e => ({
+                key: e.user_id,
+                name: e.user_name,
+                age: e.user_age,
+                userType: e.user_type === 'Admin' ? 'Admin' : 'Employee',
+            }))
             ctx.response.status = 200;
             ctx.body = {
                 code: 200,
                 msg: 'success',
-                data
+                newData
             }
         }catch(err){
             ctx.response.status = 412;
@@ -52,7 +59,7 @@ class UserController {
     static async editUser(ctx){
         const { body } = ctx.request;
         try{
-            const data = await UserModule.editUser(body)
+            const data = await UserModule.editUser(body);
             ctx.response.status = 200;
             ctx.body = {
                 code: 200,
@@ -71,7 +78,6 @@ class UserController {
 
     static async delUser(ctx){
         const {body} = ctx.request;
-        console.log(body);
         if(body){
             try{
                 const data = await UserModule.delUser(body)
@@ -98,31 +104,68 @@ class UserController {
         }
     }
 
-
     static async login(ctx){
-        const query = ctx.request.body;
-        if(query.password && query.username){
-            try{
-                const data = await UserModule.addUsers(query)
-                ctx.response.status = 200;
+        let cookieSetting = {
+            domain: 'localhost', 
+            maxAge: 24 * 60 * 1000, 
+            httpOnly: false,  
+            overwrite: false  
+        }
+        const { body } = ctx.request;
+        try{
+            let q = JSON.parse(body);
+            if( q.user_name === 'root' ) {
+                ctx.cookies.set(
+                    'username', 
+                    'root',
+                    cookieSetting
+                );
+                ctx.cookies.set(
+                    'power', 
+                    'Admin',
+                    cookieSetting
+                );  
                 ctx.body = {
                     code: 200,
                     msg: 'success',
-                    data
+                    data: [{
+                        user_name: 'root',
+                        user_type: "Admin"
+                    }]
                 }
-            }catch(err){
-                ctx.response.status = 412;
-                ctx.body = {
-                    code: 412,
-                    msg:'error',
-                    err
+            } else {
+                const data = await UserModule.queryUsers(body);
+                ctx.response.status = 200;
+                if((data && data.length > 0)) {
+                    ctx.cookies.set(
+                        'username', 
+                        data[0].user_name,
+                        cookieSetting
+                    );
+                    ctx.cookies.set(
+                        'power', 
+                        data[0].user_type,
+                        cookieSetting
+                    );  
+                    ctx.body = {
+                        code: 200,
+                        msg: 'success',
+                        data
+                    }
+                } else {
+                    ctx.body = {
+                        code: -1,
+                        msg:'no such user',
+                        err: 'error'
+                    }
                 }
-            }
-        }else{
-            ctx.response.status = 416;
+            }   
+        }catch(err){
+            ctx.response.status = 412;
             ctx.body = {
-                code: 416,
-                msg: '参数不全'
+                code: -2,
+                msg:'error',
+                err
             }
         }
     }

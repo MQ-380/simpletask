@@ -16,7 +16,6 @@ export default function CommonTable(props) {
             onRow={record => {
                 return {
                     onClick: e => {
-                        console.log(record);
                         setShowModalType('edit');
                         setClickedInfo(record);
                     }

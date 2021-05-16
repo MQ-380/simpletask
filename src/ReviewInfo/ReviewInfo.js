@@ -1,5 +1,7 @@
 import React, { useState, useEffect} from 'react';
+import { message } from 'antd';
 import CommonTable from '../CommonTable/CommonTable';
+import {backend_prefix} from '../config';
 
 export default function ReviewInfo (props) {
     let [ originData, setOriginData ] = useState([]);
@@ -9,31 +11,24 @@ export default function ReviewInfo (props) {
     let [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
-        let data = [];
-        let user = [];
-        // get user info api;
-        for(let i = 0; i < 20; i++) {
-            data.push({
-                key: i.toString(),
-                from: `User ${i}`,
-                to: `User ${20-i}`,
-                content: '21',
-                hasBeenDone: i % 2 ,
-                addPeople: props.name,
-            });
-            user.push({
-                name: `User ${i}`,
-            })
+        async function getData() {
+            try {
+                let p1 = await fetch(`${backend_prefix}/review/reviews`).then(res => res.json());
+                let p2 = await fetch(`${backend_prefix}/users/users`).then(res => res.json());
+                if(p1.code === 200 && p2.code === 200) {
+                    setOriginData(p1.data);
+                    setAllUsers(p2.data.map(e=>({name: e.name, isAdmin: e.userType === 'Admin'})));
+                    setLoading(false);
+                } else {
+                    message.error(p1.msg || p2.msg ||  'An error occured, please refresh~');
+                    setLoading(false);
+                }
+            } catch(e) {
+                message.error('An error occured, please refresh~');
+                setLoading(false);
+            }
         }
-        user.push({
-            name: 'Admin1', isAdmin: true
-        }, {name:" Admin3", isAdmin: true})
-        setTimeout(() => {
-            setOriginData(data);
-            setAllUsers(user);
-            setLoading(false);
-        }, 1000)
-
+        getData();
     }, []);
 
     const getAllUserFilter = () => (
@@ -99,9 +94,7 @@ export default function ReviewInfo (props) {
         },
     ]
 
-    const saveInfo = (info, prevRecord, model) => {
-        // getInfo from backend
-        console.log('123', info);
+    const saveInfo = async (info, prevRecord, model) => {
         let e = [...originData];
         if(model === 'edit') {
             let index = e.findIndex(item => item.key === prevRecord.key);
@@ -109,21 +102,54 @@ export default function ReviewInfo (props) {
                 let item = e[index];
                 if(info.from) item.from = info.from;
                 if(info.to) item.to = info.to;
-                e[index] = item;
+                try {
+                    let res = await fetch(`${backend_prefix}/review/editReview`, {
+                        method: 'POST',
+                        body: JSON.stringify(item)
+                    })
+                    if(res.status === 200) {
+                        e[index] = item;
+                    } else {
+                        setClickedInfo({});
+                        return Promise.reject();
+                    }
+                } catch(e) {
+                    setClickedInfo({});
+                    return Promise.reject();
+                }
             }
         } else if(model === 'add') {
-            e.unshift({
-                key: e.length,
-                from: info.from,
-                to: info.to,
-                content: '',
-                hasBeenDone: false,
-                addPeople: props.nowUser,
-            });
+            try {
+                let res = await fetch(`${backend_prefix}/review/addReview`, {
+                    method: 'POST', 
+                    body: JSON.stringify({
+                        from: info.from,
+                        to: info.to,
+                        content: '',
+                        addPeople: props.username,
+                    })
+                });
+                if(res.status === 200) {
+                    e.unshift({
+                        key: e.length + 1,
+                        from: info.from,
+                        to: info.to,
+                        content: '',
+                        hasBeenDone: false,
+                        addPeople: props.username,
+                    });
+                } else {
+                    setClickedInfo({});
+                    return Promise.reject();
+                }
+            } catch(ey) {
+                setClickedInfo({});
+                return Promise.reject();
+            }
         }
-        
         setOriginData(e);
         setClickedInfo({});
+        return Promise.resolve();
     }
 
     return  (
