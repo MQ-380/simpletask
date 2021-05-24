@@ -1,4 +1,7 @@
-# PAYPAY CODE CHALLENGE
+# A Simple Task
+
+花了一晚上肝的前后端Node.js+React小项目。
+员工review管理系统。
 
 ## Tech Introduction
 Frontend: 
@@ -121,8 +124,6 @@ CREATE TABLE `reviews` (
 4. The logger and security operation should be improved in the backend server.
    
 
-
-** Thanks for your time to review my work. Have a nice day~ **
 
 
 

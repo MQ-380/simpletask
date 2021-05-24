@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 //Config database here
 //0 -> databaseName 1 -> database user 2 -> databasepassword 
-const sequelize = new Sequelize('PAY','root','65433858m',{
+const sequelize = new Sequelize('PAY','root','******',{
     host:'localhost',
     dialect:'mysql',
     operatorsAliases:false,
